@@ -1,6 +1,11 @@
+import TableList from "../../features/TableList/TableList";
+
 const Home = () => {
   return(
-    <h1>Hello world</h1>
+    <>
+      <h1>All tables</h1>
+      <TableList />
+    </>
   );
 };
 
