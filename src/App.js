@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import { Container } from "react-bootstrap";
+import Container from "react-bootstrap/Container";
 import Home from "./components/pages/Home/Home";
 import TableInfo from "./components/pages/TableInfo/TableInfo";
 import NotFound from "./components/pages/NotFound/NotFound";
