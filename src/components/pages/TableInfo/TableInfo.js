@@ -1,7 +1,7 @@
-import { useDispatch, useSelector } from "react-redux";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { editTableRequest, fetchTableById, getTableById } from "../../../redux/tablesRedux";
 import { useEffect, useState } from "react";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { editTableRequest, fetchTableById, getTableById } from "../../../redux/tablesRedux";
 import TableStatus from "../../features/TableStatus/TableStatus";
 import TableBill from "../../features/TableBill/TableBill";
 import TablePeople from "../../features/TablePeople/TablePeople";
@@ -24,6 +24,7 @@ const TableInfo = () => {
   const [maxPeopleAmount, setMaxPeopleAmount] = useState(0);
   const [bill, setBill] = useState(0);
 
+  //asynchroniczna funkcja pobierająca dane oraz ustawiająca setLoading w zależności od stanu danych
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -33,6 +34,7 @@ const TableInfo = () => {
     fetchData();
   }, [dispatch, tableId]);
 
+  //warunek ustawiający początkowe wartości, gdy zostaną pobrane dane
   useEffect(() => {
     if(tableData){
       setStatus(tableData.status);
@@ -41,10 +43,6 @@ const TableInfo = () => {
       setBill(tableData.bill);
     }
   }, [tableData]);
-
-  useEffect(() => {
-    if(peopleAmount > maxPeopleAmount) setPeopleAmount(maxPeopleAmount)
-  }, [peopleAmount, maxPeopleAmount]);
 
   const handleEditTable = e => {
     e.preventDefault();
@@ -62,6 +60,12 @@ const TableInfo = () => {
     dispatch(editTableRequest(editedTable, navigate));
   };
 
+  //warunek, który ustawia poepleAmount o wartości maxPeopleAmount, gdy maxPeopleAmount < peopleAmount
+  useEffect(() => {
+    if(peopleAmount > maxPeopleAmount) setPeopleAmount(maxPeopleAmount)
+  }, [peopleAmount, maxPeopleAmount]);
+
+  //warunek który automatycznie ustawia wartości w polach peopleAmount oraz maxPeopleAmount przy zmianie statusu na 'Free' lub 'Cleaning'
   const handleStatusChange = (value) => {
     setStatus(value);
     if(value === "Free" || value === "Cleaning"){
@@ -70,14 +74,17 @@ const TableInfo = () => {
     };
   };
 
+  //warunek ustawiający, aby peopleAmount nie mogło być większe od maxPeopleAmount
   const handlePeopleAmountChange = (value) => {
     if(value <= maxPeopleAmount){
       setPeopleAmount(value);
     };
   };
 
+  //warunek, jeżeli nie istnieje stolik, nawiguje nas na strone główną
   if(!tableData && !loading) return <Navigate to="/" />;
 
+  //warunek włączający spinner, gdy status loading = true
   if(loading) return (
     <div className="d-flex align-items-center justify-content-center py-3">
       <Spinner />

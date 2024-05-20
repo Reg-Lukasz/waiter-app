@@ -1,12 +1,19 @@
-import { useSelector } from "react-redux";
-import { getAllTables } from '../../../redux/tablesRedux';
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteTableRequest, getAllTables } from '../../../redux/tablesRedux';
+import { Link, useNavigate } from "react-router-dom";
 import Spinner from "react-bootstrap/Spinner";
 import Button from "react-bootstrap/Button";
 
 const TableList = () => {
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const tables = useSelector(getAllTables);
+
+  const handleDeleteTable = id => {
+    dispatch(deleteTableRequest(id, navigate));
+  }
 
   if(!tables.length){
     return (
@@ -28,6 +35,7 @@ const TableList = () => {
             <Link key={table.id} to={`table/${table.id}`}>
               <Button>See more</Button>
             </Link>
+            <Button variant="danger" onClick={() => handleDeleteTable(table.id)}>Remove</Button>
           </div>
         </div>
       ))}
