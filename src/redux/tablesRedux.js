@@ -15,7 +15,7 @@ const FETCH_TABLE_SUCCESS = createActionName('FETCH_TABLE_SUCCESS');
 // action creators
 export const updateTables = payload => ({ type: UPDATE_TABLES, payload });
 export const editTable = payload => ({ type: EDIT_TABLE, payload });
-export const deleteTable = payload => ({ tpye: DELETE_TABLE, payload });
+export const deleteTable = payload => ({ type: DELETE_TABLE, payload });
 export const addTable = payload => ({ type: ADD_TABLE, payload });
 export const fetchTableSuccess = payload => ({ type: FETCH_TABLE_SUCCESS, payload });
 export const fetchTables = () => {
@@ -53,7 +53,7 @@ export const deleteTableRequest = ( id, navigate ) => {
       }
     };
     fetch(`${API_URL}/tables/${id}`, options)
-      .then(() => {dispatch(editTable(deleteTable(id)))})
+      .then(() => {dispatch(deleteTable(id))})
       navigate('/');
   };
 };
