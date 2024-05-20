@@ -21,18 +21,26 @@ const TableAdd = () => {
   const [newTableMaxPeopleAmount, setNewTableMaxPeopleAmount] = useState(0);
   const [newTableBill, setNewTableBill] = useState(0);
 
+  //ustawia pierwszą możliwą opcję dla setTableId
+  useEffect(() => {
+    if(tables.length > 0){
+      const occupiedIds = tables.map(table => parseInt(table.id));
+      let newId = null;
+
+      for(let i = 1; i <= 10; i++) {
+        if(!occupiedIds.includes(i)){
+          newId = i;
+          break;
+        };
+      };
+      setNewTableId(newId);
+    }
+  }, [tables]);
+
   //warunek, który ustawia poepleAmount o wartości maxPeopleAmount, gdy maxPeopleAmount < peopleAmount
   useEffect(() => {
     if(newTablePeopleAmount > newTableMaxPeopleAmount) setNewTablePeopleAmount(newTableMaxPeopleAmount)
   }, [newTablePeopleAmount, newTableMaxPeopleAmount]);
-
-  //ustawia pierwszą możliwą opcję dla setTableId
-  useEffect(() => {
-    if(tables.length > 0){
-      const maxId = tables.reduce((max, table) => Math.max(max, table.id), 0);
-      setNewTableId(maxId + 1);
-    };
-  }, [tables]);
 
   //warunek który automatycznie ustawia wartości w polach peopleAmount oraz maxPeopleAmount przy zmianie statusu na 'Free' lub 'Cleaning'
   const handleStatusChange = (value) => {

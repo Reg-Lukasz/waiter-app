@@ -24,7 +24,7 @@ const TableInfo = () => {
   const [maxPeopleAmount, setMaxPeopleAmount] = useState(0);
   const [bill, setBill] = useState(0);
 
-  //asynchroniczna funkcja pobierająca dane oraz ustawiająca setLoading w zależności od stanu danych
+  //asynchroniczna funkcja pobierająca dane oraz ustawiająca setLoading
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -34,7 +34,7 @@ const TableInfo = () => {
     fetchData();
   }, [dispatch, tableId]);
 
-  //warunek ustawiający początkowe wartości, gdy zostaną pobrane dane
+  //warunek ustawiający początkowe wartości, gdy dane istnieją
   useEffect(() => {
     if(tableData){
       setStatus(tableData.status);
