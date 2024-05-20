@@ -40,7 +40,7 @@ export const editTableRequest = ( editedTable, navigate ) => {
       body: JSON.stringify(editedTable),
     };
     fetch(`${API_URL}/tables/${editedTable.id}`, options)
-      .then(() => { dispatch(editTable(editedTable.id)) })
+      .then(() => { dispatch(editTable(editedTable)) })
       navigate('/');
   }
 };
