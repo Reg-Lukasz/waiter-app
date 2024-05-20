@@ -1,8 +1,13 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
-import { editTableRequest, getTableById } from "../../../redux/tablesRedux";
-import { useState } from "react";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { editTableRequest, fetchTableById, getTableById } from "../../../redux/tablesRedux";
+import { useEffect, useState } from "react";
+import TableStatus from "../../features/TableStatus/TableStatus";
+import TableBill from "../../features/TableBill/TableBill";
+import TablePeople from "../../features/TablePeople/TablePeople";
 import Container from "react-bootstrap/Container";
+import Spinner from "react-bootstrap/Spinner";
+import Button from "react-bootstrap/Button";
 
 const TableInfo = () => {
 
@@ -13,10 +18,33 @@ const TableInfo = () => {
 
   const tableData = useSelector(state => getTableById(state, tableId));
 
-  const [status, setStatus] = useState(tableData.status);
-  const [peopleAmount, setPeopleAmount] = useState(tableData.peopleAmount);
-  const [maxPeopleAmount, setMaxPeopleAmount] = useState(tableData.maxPeopleAmount);
-  const [bill, setBill] = useState(tableData.bill);
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState('');
+  const [peopleAmount, setPeopleAmount] = useState(0);
+  const [maxPeopleAmount, setMaxPeopleAmount] = useState(0);
+  const [bill, setBill] = useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      await dispatch(fetchTableById(tableId));
+      setLoading(false);
+    };
+    fetchData();
+  }, [dispatch, tableId]);
+
+  useEffect(() => {
+    if(tableData){
+      setStatus(tableData.status);
+      setPeopleAmount(tableData.peopleAmount);
+      setMaxPeopleAmount(tableData.maxPeopleAmount);
+      setBill(tableData.bill);
+    }
+  }, [tableData]);
+
+  useEffect(() => {
+    if(peopleAmount > maxPeopleAmount) setPeopleAmount(maxPeopleAmount)
+  }, [peopleAmount, maxPeopleAmount]);
 
   const handleEditTable = e => {
     e.preventDefault();
@@ -25,10 +53,7 @@ const TableInfo = () => {
       status: status,
       peopleAmount: peopleAmount,
       maxPeopleAmount: maxPeopleAmount,
-      bill: bill
-    };
-    if(status !== "Busy"){
-      editedTable.bill = 0;
+      bill: status !== "Busy" ? 0 : bill
     };
     if(status === "Free" || status === "Cleaning"){
       editedTable.peopleAmount = 0;
@@ -37,64 +62,39 @@ const TableInfo = () => {
     dispatch(editTableRequest(editedTable, navigate));
   };
 
-  if(peopleAmount > maxPeopleAmount) setPeopleAmount(maxPeopleAmount);
-
-  if (!tableData) return navigate('/');
-
-  if(status !== 'Busy'){
-    return(
-      <div>
-      <Container>
-        <h1>Table {tableData.id}</h1>
-        <div className="d-flex align-items-center py-3">
-          <strong className="pe-4">Status:</strong>
-          <select value={status} className="form-select w-25" onChange={e => setStatus(e.target.value)}>
-            <option value="Busy">Busy</option>
-            <option value="Free">Free</option>
-            <option value="Reserved">Reserved</option>
-            <option value="Cleaning">Cleaning</option>
-          </select>
-        </div>
-        <div className="d-flex align-items-center pb-3">
-          <strong className="pe-4">People:</strong>
-          <input type="number" min="0" max="10" value={peopleAmount} className="form-control w-25" onChange={e => setPeopleAmount(e.target.value)}></input>
-          <span className="px-2">/</span>
-          <input type="number" min="0" max="10" value={maxPeopleAmount} className="form-control w-25" onChange={e => setMaxPeopleAmount(e.target.value)}></input>
-        </div>
-        <div>
-          <button className="btn btn-primary" onClick={handleEditTable}>Update</button>
-        </div>
-      </Container>
-    </div>
-    );
+  const handleStatusChange = (value) => {
+    setStatus(value);
+    if(value === "Free" || value === "Cleaning"){
+      setPeopleAmount(0);
+      setMaxPeopleAmount(0);
+    };
   };
+
+  const handlePeopleAmountChange = (value) => {
+    if(value <= maxPeopleAmount){
+      setPeopleAmount(value);
+    };
+  };
+
+  if(!tableData && !loading) return <Navigate to="/" />;
+
+  if(loading) return (
+    <div className="d-flex align-items-center justify-content-center py-3">
+      <Spinner />
+    </div>
+  );
 
   return(
     <div>
       <Container>
         <h1>Table {tableData.id}</h1>
-        <div className="d-flex align-items-center py-3">
-          <strong className="pe-4">Status:</strong>
-          <select value={status} className="form-select w-25" onChange={e => setStatus(e.target.value)}>
-            <option value="Busy">Busy</option>
-            <option value="Free">Free</option>
-            <option value="Reserved">Reserved</option>
-            <option value="Cleaning">Cleaning</option>
-          </select>
-        </div>
-        <div className="d-flex align-items-center pb-3">
-          <strong className="pe-4">People:</strong>
-          <input type="number" min="0" max="10" value={peopleAmount} className="form-control w-25" onChange={e => setPeopleAmount(e.target.value)}></input>
-          <span className="px-2">/</span>
-          <input type="number" min="0" max="10" value={maxPeopleAmount} className="form-control w-25" onChange={e => setMaxPeopleAmount(e.target.value)}></input>
-        </div>
-        <div className="d-flex align-items-center pb-3">
-          <strong className="pe-5">Bill:</strong>
-          <span className="pe-2">$</span>
-          <input type="number" min="0" value={bill} className="form-control w-25" onChange={e => setBill(e.target.value)}></input>
-        </div>
+        <TableStatus status={status} handleStatusChange={handleStatusChange} />
+        <TablePeople peopleAmount={peopleAmount} maxPeopleAmount={maxPeopleAmount} handlePeopleAmountChange={handlePeopleAmountChange} setMaxPeopleAmount={setMaxPeopleAmount} />
+        {status === "Busy" && (
+        <TableBill bill={bill} setBill={setBill} />
+        )}
         <div>
-          <button className="btn btn-primary" onClick={handleEditTable}>Update</button>
+          <Button onClick={handleEditTable}>Update</Button>
         </div>
       </Container>
     </div>
